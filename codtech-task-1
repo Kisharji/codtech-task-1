@@ -1,0 +1,207 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Student {
+public:
+    string name;
+    int rollNo;
+    float marks[5];
+    float totalMarks;
+    float grade;
+
+    Student(string name, int rollNo, float marks[5]) {
+        this->name = name;
+        this->rollNo = rollNo;
+        for (int i = 0; i < 5; i++) {
+            this->marks[i] = marks[i];
+        }
+        calculateTotalMarks();
+        calculateGrade();
+    }
+
+    void calculateTotalMarks() {
+        totalMarks = 0;
+        for (int i = 0; i < 5; i++) {
+            totalMarks += marks[i];
+        }
+    }
+
+    void calculateGrade() {
+        float percentage = (totalMarks / 500) * 100;
+        if (percentage >= 90) {
+            grade = 'A';
+        } else if (percentage >= 75) {
+            grade = 'B';
+        } else if (percentage >= 60) {
+            grade = 'C';
+        } else if (percentage >= 50) {
+            grade = 'D';
+        } else {
+            grade = 'F';
+        }
+    }
+
+    void displayStudentInfo() {
+        cout << "Roll No: " << rollNo << "\n";
+        cout << "Name: " << name << "\n";
+        cout << "Marks: ";
+        for (int i = 0; i < 5; i++) {
+            cout << marks[i] << " ";
+        }
+        cout << "\nTotal Marks: " << totalMarks << "\n";
+        cout << "Grade: " << grade << "\n\n";
+    }
+
+    void updateStudentInfo(string newName, float newMarks[5]) {
+        name = newName;
+        for (int i = 0; i < 5; i++) {
+            marks[i] = newMarks[i];
+        }
+        calculateTotalMarks();
+        calculateGrade();
+    }
+};
+
+class StudentManagementSystem {
+private:
+    vector<Student> students;
+
+public:
+    void addStudent() {
+        string name;
+        int rollNo;
+        float marks[5];
+        
+        cout << "Enter student name: ";
+        cin.ignore();
+        getline(cin, name);
+        
+        cout << "Enter student roll number: ";
+        cin >> rollNo;
+        
+        cout << "Enter marks for 5 subjects: \n";
+        for (int i = 0; i < 5; i++) {
+            cin >> marks[i];
+        }
+
+        students.push_back(Student(name, rollNo, marks));
+        cout << "Student added successfully!\n";
+    }
+
+    void editStudent() {
+        int rollNo;
+        cout << "Enter roll number of student to edit: ";
+        cin >> rollNo;
+
+        for (auto &student : students) {
+            if (student.rollNo == rollNo) {
+                string newName;
+                float newMarks[5];
+                
+                cout << "Enter new name: ";
+                cin.ignore();
+                getline(cin, newName);
+                
+                cout << "Enter new marks for 5 subjects: \n";
+                for (int i = 0; i < 5; i++) {
+                    cin >> newMarks[i];
+                }
+
+                student.updateStudentInfo(newName, newMarks);
+                cout << "Student information updated successfully!\n";
+                return;
+            }
+        }
+
+        cout << "Student with roll number " << rollNo << " not found.\n";
+    }
+
+    void deleteStudent() {
+        int rollNo;
+        cout << "Enter roll number of student to delete: ";
+        cin >> rollNo;
+
+        auto it = remove_if(students.begin(), students.end(), [rollNo](Student &student) {
+            return student.rollNo == rollNo;
+        });
+
+        if (it != students.end()) {
+            students.erase(it, students.end());
+            cout << "Student deleted successfully!\n";
+        } else {
+            cout << "Student with roll number " << rollNo << " not found.\n";
+        }
+    }
+
+    void displayAllStudents() {
+        if (students.empty()) {
+            cout << "No students to display.\n";
+            return;
+        }
+        
+        for (auto &student : students) {
+            student.displayStudentInfo();
+        }
+    }
+
+    void searchStudent() {
+        int rollNo;
+        cout << "Enter roll number to search: ";
+        cin >> rollNo;
+
+        for (auto &student : students) {
+            if (student.rollNo == rollNo) {
+                student.displayStudentInfo();
+                return;
+            }
+        }
+
+        cout << "Student with roll number " << rollNo << " not found.\n";
+    }
+};
+
+int main() {
+    StudentManagementSystem sms;
+    int choice;
+
+    do {
+        cout << "Student Management System\n";
+        cout << "1. Add Student\n";
+        cout << "2. Edit Student\n";
+        cout << "3. Delete Student\n";
+        cout << "4. Display All Students\n";
+        cout << "5. Search Student\n";
+        cout << "6. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                sms.addStudent();
+                break;
+            case 2:
+                sms.editStudent();
+                break;
+            case 3:
+                sms.deleteStudent();
+                break;
+            case 4:
+                sms.displayAllStudents();
+                break;
+            case 5:
+                sms.searchStudent();
+                break;
+            case 6:
+                cout << "Exiting the system...\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}
